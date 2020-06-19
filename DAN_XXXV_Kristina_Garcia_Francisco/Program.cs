@@ -1,15 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace DAN_XXXV_Kristina_Garcia_Francisco
 {
     class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
+            NumberGuesser ng = new NumberGuesser();
+
+            Thread getValues = new Thread(ng.EnterValues);
+            getValues.Start();
+            getValues.Join();
+
+            Console.ReadKey();
         }
     }
 }
