@@ -4,15 +4,41 @@ using System.Threading;
 
 namespace DAN_XXXV_Kristina_Garcia_Francisco
 {
+    /// <summary>
+    /// Class used to guess the correct number
+    /// </summary>
     class NumberGuesser
     {
+        #region Properties       
+        /// <summary>
+        /// Number of threads that are created
+        /// </summary>
         private int noParticipants = 0;
+        /// <summary>
+        /// The given number to search
+        /// </summary>
         private int randomNumber = 0;
+        /// <summary>
+        /// The currently guessed number by the thread
+        /// </summary>
         private int guessedNumber = 0;
+        /// <summary>
+        /// Contains all created threads
+        /// </summary>
         private List<Thread> allParticipants = new List<Thread>();
+        /// <summary>
+        /// Guessed number randomizer
+        /// </summary>
         private Random rng = new Random();
+        /// <summary>
+        /// The locked object
+        /// </summary>
         private static readonly object l = new object();
+        #endregion
 
+        /// <summary>
+        /// Reads user input values and announces them
+        /// </summary>
         public void EnterValues()
         {
             lock (l)
@@ -42,6 +68,9 @@ namespace DAN_XXXV_Kristina_Garcia_Francisco
             }
         }
 
+        /// <summary>
+        /// Creates new threads equal to the number of participants
+        /// </summary>
         public void CreateParticipants()
         {
             lock (l)
@@ -67,27 +96,36 @@ namespace DAN_XXXV_Kristina_Garcia_Francisco
                 Monitor.Pulse(l);
                 // Wait for the lock to be open again
                 Monitor.Wait(l, Timeout.Infinite);
-                // Signalize the generated threads that the lock is avaliable again 
-                Monitor.Pulse(l);
+
+                // Start all generated threads
                 foreach (var item in allParticipants)
                 {
                     item.Start();
                 }
             }
         }
-
+        
+        /// <summary>
+        /// Announces the given inputs
+        /// </summary>
         public void Announcer()
         {
             Console.WriteLine("User entered the number of participants, {0}, " +
                 "and the number to be guessed, {1}.\n", noParticipants, randomNumber);
         }
 
+        /// <summary>
+        /// Guess the number and announce the tries
+        /// </summary>
         public void GuessTheNumber()
         {
+            // Repeat until the guessed number is the same as the given
             while (guessedNumber != randomNumber)
             {
                 lock (l)
                 {
+                    // In case a thread entered with the wrong number even 
+                    // after the correct one has been guessed
                     if (guessedNumber == randomNumber)
                     {
                         break;
@@ -95,6 +133,7 @@ namespace DAN_XXXV_Kristina_Garcia_Francisco
 
                     guessedNumber = rng.Next(1, 101);
 
+                    // Wrong guess
                     if (guessedNumber != randomNumber)
                     {
                         Console.Write("Participant {0} guessed with {1}.", Thread.CurrentThread.Name, guessedNumber);
@@ -108,6 +147,7 @@ namespace DAN_XXXV_Kristina_Garcia_Francisco
                             Console.WriteLine();
                         }
                     }
+                    // Correct guess
                     else
                     {
                         Console.WriteLine("Participant {0} won, guessed value was {1}.", Thread.CurrentThread.Name, guessedNumber);
@@ -117,6 +157,11 @@ namespace DAN_XXXV_Kristina_Garcia_Francisco
             }
         }
 
+        /// <summary>
+        /// Check if the number is odd or even
+        /// </summary>
+        /// <param name="num">the number that is being checked</param>
+        /// <returns>Even or Odd</returns>
         public string OddOrEven(int num)
         {
             string value;
